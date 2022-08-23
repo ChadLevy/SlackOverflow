@@ -1,7 +1,12 @@
+using SlackOverflow.Web.Clients.StackOverflowClient;
+using SlackOverflow.Web.Services.SlackOverflow;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<IStackOverflowClient, StackOverflowClient>();
+builder.Services.AddSingleton<ISlackOverflowService, SlackOverflowService>();
 
 var app = builder.Build();
 
