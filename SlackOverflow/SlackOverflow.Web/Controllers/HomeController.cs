@@ -9,20 +9,11 @@ namespace SlackOverflow.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ISlackOverflowService _slackOverflowService;
 
         public HomeController(ILogger<HomeController> logger, ISlackOverflowService slackOverflowService)
         {
             _logger = logger;
-            _slackOverflowService = slackOverflowService;
         }
-
-        public async Task<IActionResult> GetQuestion()
-        {
-            var question = await _slackOverflowService.GetQuestionAsync();
-            return Json(question);
-        }
-        
 
         public IActionResult Index()
         {
