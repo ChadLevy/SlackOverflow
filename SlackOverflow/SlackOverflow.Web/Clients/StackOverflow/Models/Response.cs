@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SlackOverflow.Web.Clients.StackOverflowClient.Models
+namespace SlackOverflow.Web.Clients.StackOverflow.Models
 {
     /// <summary>
     /// Wrapper object for all Stack Overflow API responses.

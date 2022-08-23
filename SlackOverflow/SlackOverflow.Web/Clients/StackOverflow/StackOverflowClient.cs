@@ -1,4 +1,4 @@
-﻿using SlackOverflow.Web.Clients.StackOverflowClient.Models;
+﻿using SlackOverflow.Web.Clients.StackOverflow.Models;
 using RestSharp;
 
 namespace SlackOverflow.Web.Clients.StackOverflowClient

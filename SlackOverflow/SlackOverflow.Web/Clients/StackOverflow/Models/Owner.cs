@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SlackOverflow.Web.Clients.StackOverflowClient.Models
+namespace SlackOverflow.Web.Clients.StackOverflow.Models
 {
     public record Owner
     {

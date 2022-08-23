@@ -1,4 +1,4 @@
-﻿using SlackOverflow.Web.Clients.StackOverflowClient.Models;
+﻿using SlackOverflow.Web.Clients.StackOverflow.Models;
 
 namespace SlackOverflow.Web.Services.SlackOverflow
 {

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SlackOverflow.Web.Clients.StackOverflowClient.Models
+namespace SlackOverflow.Web.Clients.StackOverflow.Models
 {
     public record Question
     {
@@ -9,6 +9,9 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient.Models
 
         public string Title { get; set; } = default!;
         public string? Body { get; set; }
+
+        public IEnumerable<Answer> Answers { get; set; } = Enumerable.Empty<Answer>();
+
         public string[] Tags { get; set; } = default!;
         public Owner Owner { get; set; } = default!;
 
