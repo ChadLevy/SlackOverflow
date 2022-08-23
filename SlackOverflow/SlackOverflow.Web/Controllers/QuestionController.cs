@@ -6,10 +6,10 @@ namespace SlackOverflow.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class QuestionsController : ControllerBase
+    public class QuestionController : ControllerBase
     {
         private readonly ISlackOverflowService _slackOverflowService;
-        public QuestionsController(ISlackOverflowService slackOverflowService)
+        public QuestionController(ISlackOverflowService slackOverflowService)
         {
             _slackOverflowService = slackOverflowService;
         }
