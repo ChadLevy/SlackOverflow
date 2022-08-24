@@ -1,0 +1,58 @@
+﻿@model SlackOverflow.Web.ViewModels.AnswerResult
+
+@{
+    ViewData["Title"] = Html.Raw(Model.Question.Title);
+}
+
+<div class="text-center m-5">
+    <h3 class="mt-4 mb-3">
+        Result:
+        @if(Model.CorrectAnswer)
+        {
+            <span class="text-success">Correct Answer</span>
+        }
+        else
+        {
+            <span class="text-danger">Incorrect Answer</span>
+        }
+    </h3>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@Html.Raw(Model.Question.Title)</h3>
+        <h6 class="card-subtitle text-muted">Asked by <a href="#">@Model.Question.Owner.DisplayName</a></h6>
+    </div>
+    <div class="card-body">@Html.Raw(Model.Question.Body)</div>
+    <div class="card-footer">
+        @foreach (var tag in Model.Question.Tags)
+        {
+            <span class="badge rounded-pill bg-secondary">@tag</span>
+        }
+    </div>
+</div>
+
+<div class="card mt-3 border-success">
+    <div class="card-header">
+        <h3 class="card-title text-success">Correct Answer:</h3>
+    </div>
+    <div class="card-body">
+        <p>@Html.Raw(Model.AcceptedAnswer.Body)</p>
+    </div>
+</div>
+
+@if (Model.UserSelectedAnswer != null)
+{
+    <div class="card mt-3">
+        <div class="card-header">
+            <h3 class="card-title">Your Answer:</h3>
+        </div>
+        <div class="card-body">
+            <p>@Html.Raw(Model.UserSelectedAnswer.Body)</p>
+        </div>
+    </div>
+}
+
+<div class="text-center m-5">
+    <a asp-action="Index" class="btn btn-primary btn-lg">More Questions</a>
+</div>

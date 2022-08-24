@@ -10,8 +10,6 @@ namespace SlackOverflow.Web.Clients.StackOverflow.Models
         public string Title { get; set; } = default!;
         public string? Body { get; set; }
 
-        public IEnumerable<Answer> Answers { get; set; } = Enumerable.Empty<Answer>();
-
         public string[] Tags { get; set; } = default!;
         public Owner Owner { get; set; } = default!;
 
@@ -20,9 +18,10 @@ namespace SlackOverflow.Web.Clients.StackOverflow.Models
 
         [JsonPropertyName("answer_count")]
         public int AnswerCount { get; set; }
-        
-        
+
+        [JsonPropertyName("accepted_answer_id")]
+        public int? AcceptedAnswerId { get; set; }
+
+        public bool HasAcceptedAnswer => AcceptedAnswerId != null;
     }
-
-
 }

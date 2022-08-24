@@ -1,7 +1,33 @@
-﻿@{
+﻿@model IEnumerable<SlackOverflow.Web.Clients.StackOverflow.Models.Question>
+@{
     ViewData["Title"] = "SlackOverflow";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome to SlackOverflow!</h1>
+    <h1 class="display-4">Welcome to Slack<strong>Overflow</strong>!</h1>
+    <h5 class="muted">Where slacking off is actually a good thing.</h5>
 </div>
+
+<div class="container-sm">
+
+    <div class="row gy-5 justify-content-md-center">
+        <div class="col col-lg-6">
+
+            <h3>Select a question:</h3>
+
+            <div class="list-group">
+            @foreach(var question in Model)
+            {
+                <a asp-action="Question" asp-route-id="@question.QuestionId" class="list-group-item list-group-item-action">@Html.Raw(question.Title)</a>
+            }
+            </div>
+        </div>
+    </div>
+
+    
+
+</div>
+
+@section Scripts {
+    <script type="module" src="~/js/app.js" asp-append-version="true"></script>
+}

@@ -1,6 +1,7 @@
 ﻿using SlackOverflow.Web.Clients.StackOverflow.Models;
 using SlackOverflow.Web.Clients.StackOverflowClient;
 using SlackOverflow.Web.Extensions;
+using SlackOverflow.Web.ViewModels;
 
 namespace SlackOverflow.Web.Services.SlackOverflow
 {
@@ -13,35 +14,44 @@ namespace SlackOverflow.Web.Services.SlackOverflow
             _stackOverflowClient = stackOverflowClient;
         }
 
-        public async Task<Question> GetQuestionAsync()
+        public async Task<IEnumerable<Question>> GetQuestionsAsync()
         {
-            var questions = (await _stackOverflowClient.GetQuestionsAsync()).ToList();
+            return await GetQuestionsAsync(10);
+        }
 
-            if(!questions.Any())
+        public async Task<IEnumerable<Question>> GetQuestionsAsync(int limit)
+        {
+            var questions = await _stackOverflowClient.GetQuestionsAsync();
+            var questionsWithAnswers = questions.Where(s => s.AnswerCount > 1 && s.HasAcceptedAnswer);
+
+            return questionsWithAnswers.Take(limit) ?? Enumerable.Empty<Question>();
+        }
+
+        public async Task<Question> GetQuestionAsync(int questionId)
+        {
+            var question = await _stackOverflowClient.GetQuestionAsync(questionId);
+            question.Answers = question.Answers.Shuffle();
+
+            return question;
+        }
+
+        public async Task<AnswerResult> AnswerQuestion(int questionId, int answerId)
+        {
+            var question = await _stackOverflowClient.GetQuestionAsync(questionId);
+
+            AnswerResult result = new AnswerResult()
             {
-                // TODO: determine what to do if no questions are returned.
-                return new Question();
+                CorrectAnswer = question.AcceptedAnswerId == answerId,
+                Question = question,
+                AcceptedAnswer = question.Answers.FirstOrDefault(a => a.AnswerId == question.AcceptedAnswerId),
+            };
+
+            if(!result.CorrectAnswer)
+            {
+                result.UserSelectedAnswer = question.Answers.FirstOrDefault(a => a.AnswerId == answerId);
             }
 
-            var questionsWithAnswers = questions.Where(s => 
-                s.AnswerCount > 1 
-                && s.Answers.Any(a => a.IsAccepted == true));
-
-            if (!questionsWithAnswers.Any())
-            {
-                /* TODO: determine what to do if no questions with answers are returned.
-                 * Ideas:
-                 *  1. Rerun the query. Perhaps put the whole thing in a loop and rerun the query until we get a question with an answer.
-                 *  2. Throw an error and let the user know that there are no questions with answers.
-                 */
-                return new Question();
-            }
-
-            var randomQuestion = questionsWithAnswers.GetRandom();
-
-            randomQuestion.Answers = randomQuestion.Answers.Shuffle();
-
-            return randomQuestion;
+            return result;
         }
     }
 }

@@ -1,0 +1,39 @@
+﻿@model SlackOverflow.Web.Clients.StackOverflow.Models.QuestionWithAnswers
+
+@{
+    ViewData["Title"] = Html.Raw(Model.Title);
+}
+
+<h3 class="mt-3 mb-3">Question:</h3>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@Html.Raw(Model.Title)</h3>
+        <h6 class="card-subtitle text-muted">Asked by <a href="#">@Model.Owner.DisplayName</a></h6>
+    </div>
+    <div class="card-body">@Html.Raw(Model.Body)</div>
+    <div class="card-footer">
+        @foreach(var tag in Model.Tags)
+        {
+            <span class="badge rounded-pill bg-secondary">@tag</span>
+        }
+    </div>
+</div>
+
+<h3 class="mt-4 mb-3">Which is the correct answer?</h3>
+
+@foreach(var answer in Model.Answers)
+{
+    <div class="card mt-3">
+      <div class="card-body">
+        <p>@Html.Raw(answer.Body)</p>
+      </div>
+      <div class="card-footer">
+          <a asp-action="Answer" asp-route-questionId="@Model.QuestionId" asp-route-answerId="@answer.AnswerId" class="btn btn-primary">Answer</a>
+      </div>
+    </div>
+}
+
+<div class="text-center m-5">
+    <a asp-action="Index" class="btn btn-primary btn-lg">More Questions</a>
+</div>
