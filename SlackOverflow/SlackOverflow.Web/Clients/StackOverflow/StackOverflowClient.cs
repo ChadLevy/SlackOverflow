@@ -1,8 +1,10 @@
 ﻿using SlackOverflow.Web.Clients.StackOverflow.Models;
+using SlackOverflow.Web;
 using RestSharp;
 using static SlackOverflow.Web.Clients.StackOverflow.StackOverflowExceptions;
 using System.Net;
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace SlackOverflow.Web.Clients.StackOverflowClient
 {
@@ -17,6 +19,7 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
         /// </summary>
         private const string _questonWithAnswerFilter = "!lzzdvhZk)kraeGP)KuAGXxyK)2lhNqi5kbPVfsfdte6-qaf4pi3K6R)D";
 
+        private readonly IMemoryCache _cache;
         private readonly ILogger<StackOverflowClient> _logger;
         private readonly RestClient _client;
 
@@ -25,10 +28,11 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
         private int _backoff = 0;
         private DateTime _nextAPICall = DateTime.UtcNow;
 
-        public StackOverflowClient(ILogger<StackOverflowClient> logger)
+        public StackOverflowClient(ILogger<StackOverflowClient> logger, IMemoryCache cache)
         {
             _client = new RestClient(_baseUrl);
             _logger = logger;
+            _cache = cache;
         }
 
         /// <summary>
@@ -77,7 +81,7 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
 
             _quotaMax = response.Data?.QuotaMax ?? _quotaMax;
             _quotaRemaining = response.Data?.QuotaRemaining ?? _quotaRemaining;
-            _backoff = response.Data?.Backoff ?? _backoff;
+            _backoff = response.Data?.Backoff ?? 0;
 
             // If the response returned with a backoff value,
             // store it and the next allowed API call time.
@@ -97,6 +101,10 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
                     _ => ""
                 };
             }
+
+            _cache.Set<int>(Constants.StackOverflowAPI.QuotaMaxKeyName, _quotaMax);
+            _cache.Set<int>(Constants.StackOverflowAPI.QuotaRemainingKeyName, _quotaRemaining);
+            _cache.Set<int>(Constants.StackOverflowAPI.BackoffKeyName, _backoff);
 
             return response.Data?.Items;
         }

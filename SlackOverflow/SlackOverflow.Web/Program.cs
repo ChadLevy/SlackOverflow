@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IStackOverflowClient, StackOverflowClient>();
 builder.Services.AddSingleton<ISlackOverflowService, SlackOverflowService>();
 

@@ -16,7 +16,7 @@ namespace SlackOverflow.Web.Extensions
 
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source)
         {
-            // Use RandomNumberGenerator because it's static and thread-safe.
+            // Use Crypto RandomNumberGenerator because it's static and thread-safe.
             return source.OrderBy(x => RandomNumberGenerator.GetInt32(source.Count()));
         }
     }

@@ -1,9 +1,20 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.Extensions.Caching.Memory
+@inject IMemoryCache MemoryCache
+@{
+    var quotaRemaining = 0;
+    var quotaMax = 0;
+    var backoff = 0;
+
+    MemoryCache.TryGetValue(Constants.StackOverflowAPI.QuotaRemainingKeyName, out quotaRemaining);
+    MemoryCache.TryGetValue(Constants.StackOverflowAPI.QuotaMaxKeyName, out quotaMax);
+    MemoryCache.TryGetValue(Constants.StackOverflowAPI.BackoffKeyName, out backoff);
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
+    <title>@ViewData["Title"] - SlackOverflow</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SlackOverflow.Web.styles.css" asp-append-version="true" />
@@ -24,7 +35,14 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            Powered by StackOverflow through Creative Commons Attribution-ShareAlike license.
+            <div class="row">
+                <div class="col-lg-6">
+                    Powered by StackOverflow through Creative Commons Attribution-ShareAlike license.
+                </div>
+                <div class="col-lg-6 text-end">
+                    <small class="text-end muted">API status: @quotaRemaining/@quotaMax (backoff: @backoff seconds)</small>
+                </div>
+            </div>
         </div>
     </footer>
     

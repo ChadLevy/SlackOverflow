@@ -30,6 +30,8 @@ namespace SlackOverflow.Web.Services.SlackOverflow
         public async Task<Question> GetQuestionAsync(int questionId)
         {
             var question = await _stackOverflowClient.GetQuestionAsync(questionId);
+
+            // Requirement 2: Select a question to view all the answers for that question *in a random order*.
             question.Answers = question.Answers.Shuffle();
 
             return question;
