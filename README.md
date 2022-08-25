@@ -4,15 +4,14 @@ AccuLynx Dev Code Challenge of Challenging Coding. [Requirements](https://github
 
 ## Requirements:
 
-- .NET Core 6
+- [.NET Core 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 
 ## How to run:
 
 1. Clone the repository
 2. Open Terminal
 3. Navigate to SlackOverflow\SlackOverflow.Web
-4. Run command: `dotnet build`
-5. Run command: `dotnet run --environment Production`
+4. Run command: `dotnet run --environment Production`
 
 # Potential Improvements
 
