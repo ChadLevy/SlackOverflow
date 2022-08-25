@@ -12,5 +12,6 @@ namespace SlackOverflow.Web.Clients.StackOverflow.Models
 
         [JsonPropertyName("profile_image")]
         public string ProfileImage { get; set; } = default!;
+        public string? Link { get; set; }
     }
 }
