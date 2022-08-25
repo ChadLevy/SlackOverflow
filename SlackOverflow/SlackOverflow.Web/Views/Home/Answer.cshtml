@@ -1,4 +1,5 @@
-﻿@model SlackOverflow.Web.ViewModels.AnswerResult
+﻿@using SlackOverflow.Web.Extensions
+@model SlackOverflow.Web.ViewModels.AnswerResult
 
 @{
     ViewData["Title"] = Html.Raw(Model.Question.Title);
@@ -21,7 +22,7 @@
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">@Html.Raw(Model.Question.Title)</h3>
-        <h6 class="card-subtitle text-muted">Asked by <a href="@Model.Question.Owner.Link" target="_blank">@Model.Question.Owner.DisplayName</a></h6>
+        <h6 class="card-subtitle text-muted">Asked by <a href="@Model.Question.Owner.Link" target="_blank">@Model.Question.Owner.DisplayName</a> (@Model.Question.Owner.Reputation.KiloFormat())</h6>
     </div>
     <div class="card-body">@Html.Raw(Model.Question.Body)</div>
     <div class="card-footer">
@@ -34,8 +35,8 @@
 
 <div class="card mt-3 border-success">
     <div class="card-header">
-        <h3 class="card-title text-success">Correct Answer:</h3>
-        <h6 class="card-subtitle text-muted">Answered by <a href="@Model.AcceptedAnswer.Owner.Link" target="_blank">@Model.AcceptedAnswer.Owner.DisplayName</a></h6>
+        <h3 class="card-title text-success">Accepted Answer:</h3>
+        <h6 class="card-subtitle text-muted">Answered by <a href="@Model.AcceptedAnswer.Owner.Link" target="_blank">@Model.AcceptedAnswer.Owner.DisplayName</a> (@Model.AcceptedAnswer.Owner.Reputation.KiloFormat())</h6>
     </div>
     <div class="card-body">
         <p>@Html.Raw(Model.AcceptedAnswer.Body)</p>
@@ -47,7 +48,7 @@
     <div class="card mt-3">
         <div class="card-header">
             <h3 class="card-title">Your Chosen Answer:</h3>
-            <h6 class="card-subtitle text-muted">Answered by <a href="@Model.UserSelectedAnswer.Owner.Link" target="_blank">@Model.UserSelectedAnswer.Owner.DisplayName</a></h6>
+            <h6 class="card-subtitle text-muted">Answered by <a href="@Model.UserSelectedAnswer.Owner.Link" target="_blank">@Model.UserSelectedAnswer.Owner.DisplayName</a> (@Model.UserSelectedAnswer.Owner.Reputation.KiloFormat())</h6>
         </div>
         <div class="card-body">
             <p>@Html.Raw(Model.UserSelectedAnswer.Body)</p>

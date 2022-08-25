@@ -20,7 +20,7 @@
     </div>
 </div>
 
-<h3 class="mt-4 mb-3">Which is the correct answer?</h3>
+<h3 class="mt-4 mb-3">Which is the accepted answer?</h3>
 
 @foreach(var answer in Model.Answers)
 {
@@ -29,7 +29,7 @@
         <p>@Html.Raw(answer.Body)</p>
       </div>
       <div class="card-footer">
-          <a asp-action="Answer" asp-route-questionId="@Model.QuestionId" asp-route-answerId="@answer.AnswerId" class="btn btn-primary">Answer</a>
+          <a asp-action="Answer" asp-route-questionId="@Model.QuestionId" asp-route-answerId="@answer.AnswerId" class="btn btn-primary">Accepted Answer</a>
       </div>
     </div>
 }
