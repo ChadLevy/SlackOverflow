@@ -1,6 +1,7 @@
 ﻿using SlackOverflow.Web.Clients.StackOverflow.Models;
 using RestSharp;
 using static SlackOverflow.Web.Clients.StackOverflow.StackOverflowExceptions;
+using System.Net;
 
 namespace SlackOverflow.Web.Clients.StackOverflowClient
 {
@@ -18,9 +19,10 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
         private readonly ILogger<StackOverflowClient> _logger;
         private readonly RestClient _client;
 
-        private int quotaMax = 0;
-        private int quotaRemaining = 0;
-        private int backoff = 0;
+        private int _quotaMax = 0;
+        private int _quotaRemaining = 0;
+        private int _backoff = 0;
+        private DateTime _nextAPICall = DateTime.UtcNow;
 
         public StackOverflowClient(ILogger<StackOverflowClient> logger)
         {
@@ -32,42 +34,63 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
         /// Get a list of recent questions.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Question>> GetQuestionsAsync()
-        {
-            _logger.LogInformation("GetQuestionsAsync");
-
-            var response = await _client.ExecuteAsync<Response<Question>>(
-                new RestRequest($"/questions?order=desc&sort=week&site=stackoverflow&filter={ _recentQuestionsFilter }"));
-
-            quotaMax = response.Data?.QuotaMax ?? 0;
-            quotaRemaining = response.Data?.QuotaRemaining ?? 0;
-            backoff = response.Data?.Backoff ?? 0;
-
-            _logger.LogInformation(response.StatusCode.ToString());
-
-            var items = response!.Data?.Items;
-
-            return items?.ToList() ?? Enumerable.Empty<Question>();
-        }
+        public async Task<IEnumerable<Question>> GetQuestionsAsync() => 
+            await APICall<IEnumerable<Question>>($"/questions?order=desc&sort=week&site=stackoverflow&filter={_recentQuestionsFilter}");
 
         /// <summary>
         /// Gets a given question and its answers.
         /// </summary>
         /// <param name="questionId">StackOverflow question ID</param>
         /// <returns></returns>
-        public async Task<QuestionWithAnswers> GetQuestionAsync(int questionId)
-        {
-            var response = await _client.ExecuteAsync<Response<QuestionWithAnswers>>(
-                new RestRequest($"/questions/{questionId}?order=desc&sort=activity&site=stackoverflow&filter={ _questonWithAnswerFilter }"));
+        public async Task<QuestionWithAnswers> GetQuestionAsync(int questionId) => 
+            await APICall<QuestionWithAnswers>($"/questions/{questionId}?order=desc&sort=activity&site=stackoverflow&filter={_questonWithAnswerFilter}");
 
-            if(!response.IsSuccessful)
+        /// <summary>
+        /// Wrapper method for all SO API calls.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="resource"></param>
+        /// <returns></returns>
+        /// <exception cref="StackOverflowThrottleViolationException"></exception>
+        /// <exception cref="StackOverflowInternalErrorException"></exception>
+        /// <exception cref="StackOverflowUnavailableException"></exception>
+        private async Task<T> APICall<T>(string resource) where T: class
+        {
+            // If the last API call returned with a backoff value,
+            // ensure we wait until we're allowed to call the API again.
+            if(_backoff > 0)
             {
-                throw new StackOverflowAPIException($"GetQuestionAsync returned not successful: { response.ErrorException.Message }");
+                var waitTime = DateTime.UtcNow - _nextAPICall;
+                _logger.LogWarning("StackOverflowClient: waiting {waitTime} seconds before call.", waitTime);
+                await Task.Delay(waitTime);
             }
 
-            var question = response!.Data?.Items.FirstOrDefault();
+            var response = await _client.ExecuteAsync<Response<T>>(new RestRequest(resource));
 
-            return question;
+            _quotaMax = response.Data?.QuotaMax ?? _quotaMax;
+            _quotaRemaining = response.Data?.QuotaRemaining ?? _quotaRemaining;
+            _backoff = response.Data?.Backoff ?? _backoff;
+
+            // If the response returned with a backoff value,
+            // store it and the next allowed API call time.
+            if (response.Data?.Backoff != null)
+            {
+                _logger.LogWarning("StackOverflowClient: backoff field returned with value {_backoff}", _backoff);
+                _nextAPICall = DateTime.UtcNow.AddSeconds(_backoff);
+            }
+
+            if(response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                _ = response.Data?.ErrorName switch
+                {
+                    "throttle_violation" => throw new StackOverflowThrottleViolationException(response.Data?.ErrorMessage),
+                    "internal_error" => throw new StackOverflowInternalErrorException(response.Data?.ErrorMessage),
+                    "temporarily_unavailable" => throw new StackOverflowUnavailableException(response.Data?.ErrorMessage),
+                    _ => ""
+                };
+            }
+
+            return response.Data as T ?? default!;
         }
 
         public void Dispose()

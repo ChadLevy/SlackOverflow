@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using SlackOverflow.Web.Clients.StackOverflowClient;
 using SlackOverflow.Web.Models;
 using SlackOverflow.Web.Services.SlackOverflow;
@@ -38,7 +39,13 @@ namespace SlackOverflow.Web.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var feature = this.HttpContext.Features.Get<IExceptionHandlerFeature>();
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                LastErrorName = feature?.Error.GetType().Name,
+                LastErrorMessage = feature?.Error.Message
+            });
         }
     }
 }
