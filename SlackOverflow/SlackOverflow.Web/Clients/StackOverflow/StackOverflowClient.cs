@@ -2,6 +2,7 @@
 using RestSharp;
 using static SlackOverflow.Web.Clients.StackOverflow.StackOverflowExceptions;
 using System.Net;
+using System.Text.Json;
 
 namespace SlackOverflow.Web.Clients.StackOverflowClient
 {
@@ -34,17 +35,24 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
         /// Get a list of recent questions.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Question>> GetQuestionsAsync() => 
-            await APICall<IEnumerable<Question>>($"/questions?order=desc&sort=week&site=stackoverflow&filter={_recentQuestionsFilter}");
+        public async Task<IEnumerable<Question>> GetQuestionsAsync()
+        {
+            var response = await APICall($"/questions?order=desc&sort=week&site=stackoverflow&filter={_recentQuestionsFilter}");
+            return response;
+        }
+            
 
         /// <summary>
         /// Gets a given question and its answers.
         /// </summary>
         /// <param name="questionId">StackOverflow question ID</param>
         /// <returns></returns>
-        public async Task<QuestionWithAnswers> GetQuestionAsync(int questionId) => 
-            await APICall<QuestionWithAnswers>($"/questions/{questionId}?order=desc&sort=activity&site=stackoverflow&filter={_questonWithAnswerFilter}");
-
+        public async Task<QuestionWithAnswers> GetQuestionAsync(int questionId)
+        {
+            var response = await APICall($"/questions/{questionId}?order=desc&sort=activity&site=stackoverflow&filter={_questonWithAnswerFilter}");
+            return response.FirstOrDefault();
+        }
+        
         /// <summary>
         /// Wrapper method for all SO API calls.
         /// </summary>
@@ -54,7 +62,7 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
         /// <exception cref="StackOverflowThrottleViolationException"></exception>
         /// <exception cref="StackOverflowInternalErrorException"></exception>
         /// <exception cref="StackOverflowUnavailableException"></exception>
-        private async Task<T> APICall<T>(string resource) where T: class
+        private async Task<IEnumerable<QuestionWithAnswers>> APICall(string resource)
         {
             // If the last API call returned with a backoff value,
             // ensure we wait until we're allowed to call the API again.
@@ -65,7 +73,7 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
                 await Task.Delay(waitTime);
             }
 
-            var response = await _client.ExecuteAsync<Response<T>>(new RestRequest(resource));
+            var response = await _client.ExecuteAsync<Response<QuestionWithAnswers>>(new RestRequest(resource));
 
             _quotaMax = response.Data?.QuotaMax ?? _quotaMax;
             _quotaRemaining = response.Data?.QuotaRemaining ?? _quotaRemaining;
@@ -90,7 +98,7 @@ namespace SlackOverflow.Web.Clients.StackOverflowClient
                 };
             }
 
-            return response.Data as T ?? default!;
+            return response.Data?.Items;
         }
 
         public void Dispose()
