@@ -1,6 +1,6 @@
 ﻿namespace SlackOverflow.Web.Extensions
 {
-    // "Borrowed from Stack Overflow: https://stackoverflow.com/a/2412387/118697
+    // "Borrowed" from Stack Overflow: https://stackoverflow.com/a/2412387/118697
     // Why reinvent the wheel?
     public static class Extensions
     {
