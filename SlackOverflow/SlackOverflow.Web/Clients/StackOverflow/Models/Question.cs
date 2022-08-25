@@ -2,7 +2,7 @@
 
 namespace SlackOverflow.Web.Clients.StackOverflow.Models
 {
-    public record Question
+    public class Question
     {
         [JsonPropertyName("question_id")]
         public int QuestionId { get; set; }

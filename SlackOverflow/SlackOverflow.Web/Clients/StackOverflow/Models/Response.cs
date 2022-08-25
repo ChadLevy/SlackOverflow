@@ -6,9 +6,9 @@ namespace SlackOverflow.Web.Clients.StackOverflow.Models
     /// Wrapper object for all Stack Overflow API responses.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public record Response<T>
+    public class Response<T>
     {
-        public IEnumerable<T> Items { get; set; } = Enumerable.Empty<T>();
+        public IEnumerable<T> Items { get; set; } = default!;
         public int Page { get; set; }
         
         [JsonPropertyName("page_size")]
